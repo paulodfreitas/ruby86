@@ -1,6 +1,10 @@
 class Instruction
-  require_relative 'Instructions/halt.rb'
-  require_relative 'Instructions/nop.rb'
+  require_relative 'Instructions/halt'
+  require_relative 'Instructions/nop'
+  require_relative 'Instructions/add'
+
+  attr_accessor :processor
+  protected :processor
 
   def initialize(processor)
     @processor = processor
@@ -42,6 +46,8 @@ class Instruction
         Nop.new(processor)
       when 0x10
         Halt.new(processor)
+      when 0x60
+        Add.new(processor)
       else
         raise "Unhandled instruction: #{b}"    #todo: Remove this for something more elegant
     end

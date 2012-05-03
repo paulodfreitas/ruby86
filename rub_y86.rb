@@ -14,9 +14,9 @@ class RubY86
     def @memory.[](index)
       self.at(index) ? self.at(index) : 0
     end
-
   end
 
+  #todo Make load_code more robust, to handle empty lines, spaces, numbers on the same line etc
   def load_code filename
     i = 0
     code_lines = File.readlines filename
