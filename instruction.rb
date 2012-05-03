@@ -1,7 +1,7 @@
 class Instruction
   require_relative 'Instructions/halt'
   require_relative 'Instructions/nop'
-  require_relative 'Instructions/add'
+  require_relative 'Instructions/alu_instruction'
 
   attr_accessor :processor
   protected :processor

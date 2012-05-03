@@ -21,3 +21,11 @@ class ALUInstruction < Instruction
     processor.pc += 2
   end
 end
+
+class Add < ALUInstruction
+  def execute(valA, valB, regDest)
+    puts 'Add executed'
+    sum = valA + valB
+    return sum, regDest
+  end
+end
