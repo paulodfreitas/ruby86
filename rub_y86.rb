@@ -1,8 +1,10 @@
-class RubY86
+require_relative 'instruction.rb'
 
+class RubY86
+  attr_accessor :zf, :of, :sf, :pc, :registers, :memory
+  attr_reader :pid
 
   def initialize
-
     @zf = @of = @sf = 0
     @pid = 0
     @pc = 0
@@ -15,11 +17,10 @@ class RubY86
 
   end
 
-  def load_code
+  def load_code filename
     i = 0
-    code_lines = File.readlines "test/entry.out"
+    code_lines = File.readlines filename
     code_lines.each do |line|
-      # @var line String
       line.strip!
 
       if line.start_with? "#"
@@ -36,16 +37,18 @@ class RubY86
     end
   end
 
-  def run
-    load_code
+  def run filename
+    load_code filename
 
-    #while true
-    #  instruction = Instruction.factory
-    #  instruction.process
-    #end
-
+    catch (:halt) do
+      while true
+        instruction = Instruction.factory self
+        instruction.process
+      end
+    end
   end
+
 
 end
 
-processor = RubY86.new.run
+processor = RubY86.new.run "test/test.out"
