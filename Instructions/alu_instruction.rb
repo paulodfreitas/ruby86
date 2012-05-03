@@ -95,3 +95,15 @@ class Or < ALUInstruction
     valA or valB
   end
 end
+
+class Shl < ALUInstruction
+  def op(valA, valB)
+    valB << valA
+  end
+end
+
+class Shr < ALUInstruction
+  def op(valA, valB)
+    valB >> valA
+  end
+end
