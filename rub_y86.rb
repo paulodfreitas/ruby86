@@ -16,7 +16,13 @@ class RubY86
     end
   end
 
-  #todo Make load_code more robust, to handle empty lines, spaces, numbers on the same line etc
+  def set_flags val
+    @of = val > 0x01111111 or val < -10000000
+    @sf = @of ^ val.abs == val
+    @zf = val == 0
+  end
+
+  #todo Make load_code more robust, to handle empty lines, spaces, more than one number on the same line etc
   def load_code filename
     i = 0
     code_lines = File.readlines filename
@@ -44,6 +50,7 @@ class RubY86
       while true
         instruction = Instruction.factory self
         instruction.process
+        print instruction.class.to_s, " was executed\n"
       end
     end
   end

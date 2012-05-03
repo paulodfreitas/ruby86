@@ -7,8 +7,8 @@
 #sum reg0 + reg1
 60
 00
-01
 #end sum
+00
 00
 00
 10

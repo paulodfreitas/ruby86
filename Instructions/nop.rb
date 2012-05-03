@@ -1,5 +1,5 @@
 class Nop < Instruction
- def execute
-   puts 'Nop executed'
- end
+  def write_back
+    processor.pc += 1
+  end
 end
