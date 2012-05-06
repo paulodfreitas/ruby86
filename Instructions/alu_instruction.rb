@@ -1,38 +1,24 @@
+#todo Remember to handle things like sum of two big numbers being negative etc
 #todo Remember about endianess. The processor must be little endian
 class ALUInstruction < Instruction
-  def self.binary
+  def self.has_ra
     true
   end
 
-  #todo Add validation so that invalid registers are not used
-  def fetch
-    b = processor.memory[processor.pc + 1]
-    b0 = b & 0x11110000
-    b1 = b & 0x00001111
-    return b0, b1
+  def self.has_rb
+    true
   end
 
-  def decode(src, dest)
-    srcVal = processor.registers[src]
-    destVal = dest != 8 ? processor.registers[dest] : nil
-    return srcVal, destVal, dest
+  def execute r
+    ve = op(r[:va], r[:vb])
+    processor.set_flags ve
+    r[:ve] = ve % 0x100000000
+    return r
   end
 
-  def execute(valA, valB, dest)
-    r = op(valA, valB)
-    processor.set_flags r
-    r = r % 0x100000000
-    print "Result is: ", r, "\n"
-    return r, dest
-  end
-
-  def memory(val, reg_dest)
-    return val, reg_dest
-  end
-
-  def write_back(val, reg_dest)
-    processor.registers[reg_dest] = val
-    processor.pc += 2
+  def write_back r
+    processor.registers[r[:rb]] = r[:ve]
+    return r
   end
 end
 
@@ -61,7 +47,7 @@ class Xorl < ALUInstruction
 end
 
 class Inc < ALUInstruction
-  def self.binary
+  def self.has_rb
     false
   end
 
@@ -71,7 +57,7 @@ class Inc < ALUInstruction
 end
 
 class Dec < ALUInstruction
-  def self.binary
+  def self.has_rb
     false
   end
 
@@ -81,7 +67,7 @@ class Dec < ALUInstruction
 end
 
 class Not < ALUInstruction
-  def self.binary
+  def self.has_rb
     false
   end
 

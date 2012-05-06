@@ -1,4 +1,5 @@
 require_relative 'instruction.rb'
+require_relative 'memory.rb'
 
 class RubY86
   attr_accessor :zf, :of, :sf, :pc, :registers, :memory
@@ -10,10 +11,7 @@ class RubY86
     @pc = 0
     @registers = [0]*8
 
-    @memory  = []
-    def @memory.[](index)
-      self.at(index) ? self.at(index) : 0
-    end
+    @memory = Memory.new
   end
 
   def set_flags val
@@ -46,16 +44,21 @@ class RubY86
   def run filename
     load_code filename
 
-    catch (:halt) do
+    kind_of_halt = catch (:halt) do
       while true
         instruction = Instruction.factory self
         instruction.process
         print instruction.class.to_s, " was executed\n"
       end
     end
+
+    case kind_of_halt
+      when :invalid_instruction
+        puts "Invalid instruction executed"
+    end
   end
 
 
 end
 
-processor = RubY86.new.run "test/test.out"
+RubY86.new.run "test/test.out"
