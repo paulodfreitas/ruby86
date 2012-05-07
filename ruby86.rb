@@ -11,7 +11,7 @@ class RubY86
     @pc = 0
     @registers = [0]*8
 
-    @memory = Memory.new
+    @memory = Memory.new 0x200000
   end
 
   def set_flags val
@@ -41,14 +41,17 @@ class RubY86
     end
   end
 
+  def step
+    instruction = Instruction.factory self
+    instruction.process
+  end
+
   def run filename
     load_code filename
 
     kind_of_halt = catch (:halt) do
       while true
-        instruction = Instruction.factory self
-        instruction.process
-        print instruction.class.to_s, " was executed\n"
+        step
       end
     end
 
@@ -60,5 +63,3 @@ class RubY86
 
 
 end
-
-RubY86.new.run "test/test.out"

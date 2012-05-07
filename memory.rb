@@ -1,4 +1,8 @@
 class Memory < Array
+  def initialize size
+    @size = size
+  end
+
   alias old_set []=
 
   def []=(i, val)
