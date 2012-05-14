@@ -6,9 +6,10 @@ class Simulator
   end
 
   def main
+    puts "*** Y86 Simulator ***"
     catch (:exit) do
       while true
-        print 'y86% '
+        print "y86% "
         c = $stdin.getc
         case c
           when 'h' then print_help
@@ -33,13 +34,31 @@ class Simulator
           when 'u'
             a = gets
             unassemble a.to_i(16)
+          else
+            printf("Invalid command '%c': type 'h' in console to see a list of available commands.\n", c)
+        end
+
+        # Removing '\n' char from buffer
+        if (c = $stdin.getc) != "\n" then
+          $stdin.ungetc c
         end
       end
     end
   end
 
   def print_help
-    #todo: put the text here
+    puts "
+r          : reset
+d [address]: dump memory region
+e          : exit
+l filename : load assembly file
+j  address : jump to address
+s          : step
+x  [instrs]: execute <instrs> instructions or until halt
+p          : print register
+m          : print last memory accesses
+u [address]: unassemble
+g          : attach to screen"
   end
 
   def reset
@@ -83,9 +102,8 @@ class Simulator
     end
   end
 
-  #todo: I'm not sure whether the registers have these numbers
   def print_registers
-    regs = ['eax', 'ebx', 'ecx', 'edx', 'esi', 'edi', 'esp', 'ebp']
+    regs = %w(eax ecx edx ebx esp ebp esi edi)
 
     regs.each_with_index do |reg, i|
       print reg, '=', @processor.registers[i].to_s(16), "\n"
