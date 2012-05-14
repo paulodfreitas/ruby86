@@ -35,20 +35,15 @@ class Simulator
             a = gets
             unassemble a.to_i(16)
           else
-            printf("Invalid command '%c': type 'h' in console to see a list of available commands.\n", c)
-        end
-
-        # Removing '\n' char from buffer
-        if (c = $stdin.getc) != "\n" then
-          $stdin.ungetc c
+            #todo should we need a something to flush input buffer/alert about wrong options values.
+            #printf("Invalid command '%c': type 'h' in console to see a list of available commands.\n", c)
         end
       end
     end
   end
 
   def print_help
-    puts "
-r          : reset
+    puts "r          : reset
 d [address]: dump memory region
 e          : exit
 l filename : load assembly file
@@ -58,7 +53,8 @@ x  [instrs]: execute <instrs> instructions or until halt
 p          : print register
 m          : print last memory accesses
 u [address]: unassemble
-g          : attach to screen"
+g          : attach to screen
+"
   end
 
   def reset

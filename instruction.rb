@@ -1,7 +1,16 @@
 class Instruction
-  require_relative 'Instructions/halt'
-  require_relative 'Instructions/nop'
   require_relative 'Instructions/alu_instruction'
+  require_relative 'Instructions/call'
+  require_relative 'Instructions/halt'
+  require_relative 'Instructions/irmovl'
+  require_relative 'Instructions/jmp'
+  require_relative 'Instructions/mr_movl'
+  require_relative 'Instructions/nop'
+  require_relative 'Instructions/popl'
+  require_relative 'Instructions/pushl'
+  require_relative 'Instructions/ret'
+  require_relative 'Instructions/rm_movl'
+  require_relative 'Instructions/rr_movl'
 
   attr_accessor :processor
   protected :processor
@@ -29,8 +38,9 @@ class Instruction
     if self.class.has_ra or self.class.has_rb
       b = processor.memory[r[:vp]]
       r[:vp] += 1
-      r[:ra] = b & 0x11110000
-      r[:rb] = b & 0x00001111
+      #mask in binary?
+      r[:ra] = (b & 0xF0) >> 4
+      r[:rb] = b & 0x0F
 
       if not self.class.has_ra and r[:ra] != 0x8 or not self.class.has_rb and r[:rb] != 0x8
         throw :invalid_instruction
@@ -40,7 +50,7 @@ class Instruction
     if self.class.has_val
       m = processor.memory
       vp = r[:vp]
-      r[:vc] = ((m[vp + 3] * 128 + m[vp + 2]) * 128 + m[vp + 1]) * 128 + m[vp]
+      r[:vc] = ((m[vp + 3] * 256 + m[vp + 2]) * 256 + m[vp + 1]) * 256 + m[vp]
       r[:vp] += 4
     end
 
