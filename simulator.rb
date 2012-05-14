@@ -78,7 +78,7 @@ class Simulator
 
   #todo: I'm not sure whether the registers have these numbers
   def print_registers
-    regs = ['eax', 'ebx', 'ecx', 'edx', 'esi', 'edi', 'esp', 'ebp']
+    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi']
 
     regs.each_with_index do |reg, i|
       print reg, '=', @processor.registers[i].to_s(16), "\n"

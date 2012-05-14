@@ -36,7 +36,7 @@ end
 
 class And < ALUInstruction
   def op(valA, valB)
-    valA and valB
+    valA & valB
   end
 end
 
@@ -78,7 +78,7 @@ end
 
 class Or < ALUInstruction
   def op(valA, valB)
-    valA or valB
+    valA || valB
   end
 end
 

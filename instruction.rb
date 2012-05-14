@@ -122,7 +122,7 @@ class Instruction
 
 
   def to_s r
-    regs = ['eax', 'ebx', 'ecx', 'edx', 'esi', 'edi', 'esp', 'ebp']
+    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi']
     print self.class.to_s
     if self.class.has_ra
       print ' %', regs[r[:ra]]
