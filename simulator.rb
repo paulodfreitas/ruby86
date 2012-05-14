@@ -25,14 +25,8 @@ class Simulator
             a = gets
             jmp a.to_i(16)
           when 's' then step
-          when 'x'
-            n = gets
-            execute n.to_i(16)
+          when 'x' then execute
           when 'p' then print_registers
-          when 'm' then print_last_memory_access
-          when 'u'
-            a = gets
-            unassemble a.to_i(16)
         end
       end
     end
@@ -70,13 +64,12 @@ class Simulator
   end
 
   #todo: Not sure if the parameter is the number of instructions or the instruction per si
-  def execute n
+  def execute
     kind_of_halt = catch (:halt) do
-      n.times do
+      while true
         @processor.step
       end
     end
-
     case kind_of_halt
       when :invalid_instruction
         puts "Invalid instruction executed"
@@ -90,16 +83,6 @@ class Simulator
     regs.each_with_index do |reg, i|
       print reg, '=', @processor.registers[i].to_s(16), "\n"
     end
-  end
-
-  #todo: Not sure if I need to implement this and if I do, what it should do
-  def print_last_memory_access
-
-  end
-
-  #todo: Not sure if I need to implement this and if I do, what it should do
-  def unassemble addr
-
   end
 end
 
