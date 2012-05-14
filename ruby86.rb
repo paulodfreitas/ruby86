@@ -46,20 +46,20 @@ class RubY86
     instruction.process
   end
 
-  def run filename
-    load_code filename
-
-    kind_of_halt = catch (:halt) do
-      while true
-        step
-      end
-    end
-
-    case kind_of_halt
-      when :invalid_instruction
-        puts "Invalid instruction executed"
-    end
-  end
+  #def run filename
+  #  load_code filename
+  #
+  #  kind_of_halt = catch (:halt) do
+  #    while true
+  #      step
+  #    end
+  #  end
+  #
+  #  case kind_of_halt
+  #    when :invalid_instruction
+  #      puts "Invalid instruction executed"
+  #  end
+  #end
 
 
 end

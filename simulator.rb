@@ -42,7 +42,7 @@ class Simulator
 
   def dump addr
     10.times do |i|
-      print (addr + i).to_s(16), ': ', @processor.memory[addr + i]
+      print (addr + i).to_s(16), ': 0x', @processor.memory[addr + i].to_s(16)
       print "\n"
     end
   end
@@ -65,14 +65,14 @@ class Simulator
 
   #todo: Not sure if the parameter is the number of instructions or the instruction per si
   def execute
-    kind_of_halt = catch (:halt) do
+    error_message = catch (:halt) do
       while true
         @processor.step
       end
     end
-    case kind_of_halt
-      when :invalid_instruction
-        puts "Invalid instruction executed"
+
+    if error_message != nil
+      print "ERROR: ", error_message, "\n"
     end
   end
 

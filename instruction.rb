@@ -1,7 +1,5 @@
 class Instruction
-  require_relative 'Instructions/halt'
-  require_relative 'Instructions/nop'
-  require_relative 'Instructions/alu_instruction'
+  Dir.glob(File.dirname(__FILE__) + '/Instructions/*') {|file| require file}
 
   attr_accessor :processor
   protected :processor
@@ -33,7 +31,7 @@ class Instruction
       r[:rb] = b & 0x00001111
 
       if not self.class.has_ra and r[:ra] != 0x8 or not self.class.has_rb and r[:rb] != 0x8
-        throw :invalid_instruction
+        throw :halt, "invalid register usage"
       end
     end
 
@@ -116,7 +114,7 @@ class Instruction
           when 0xa0 then Pushl
           when 0xb0 then Popl
           else
-            raise "Unhandled instruction: #{c.to_s}"    #todo: Remove this for something more elegant
+            throw :halt, "invalid instruction: #{processor.memory[processor.pc].to_s(16)}"
         end
     return c.new(processor)
   end
