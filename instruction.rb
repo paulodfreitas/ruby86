@@ -27,8 +27,8 @@ class Instruction
     if self.class.has_ra or self.class.has_rb
       b = processor.memory[r[:vp]]
       r[:vp] += 1
-      r[:ra] = b & 0x11110000
-      r[:rb] = b & 0x00001111
+      r[:ra] = (b & 0xf0) >> 4
+      r[:rb] = b & 0x0f
 
       if not self.class.has_ra and r[:ra] != 0x8 or not self.class.has_rb and r[:rb] != 0x8
         throw :halt, "invalid register usage"
@@ -42,6 +42,7 @@ class Instruction
       r[:vp] += 4
     end
 
+    puts self.to_s(r)
     return r
   end
 
@@ -117,6 +118,23 @@ class Instruction
             throw :halt, "invalid instruction: #{processor.memory[processor.pc].to_s(16)}"
         end
     return c.new(processor)
+  end
+
+
+  def to_s r
+    regs = ['eax', 'ebx', 'ecx', 'edx', 'esi', 'edi', 'esp', 'ebp']
+    print self.class.to_s
+    if self.class.has_ra
+      print ' %', regs[r[:ra]]
+    end
+
+    if self.class.has_ra
+      print ', %', regs[r[:rb]]
+    end
+
+    if self.class.has_val
+      print ', $', regs[r[:val]]
+    end
   end
 end
 
