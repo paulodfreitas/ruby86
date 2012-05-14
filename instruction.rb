@@ -38,7 +38,7 @@ class Instruction
     if self.class.has_val
       m = processor.memory
       vp = r[:vp]
-      r[:vc] = ((m[vp + 3] * 128 + m[vp + 2]) * 128 + m[vp + 1]) * 128 + m[vp]
+      r[:vc] = ((m[vp + 3] * 256 + m[vp + 2]) * 256 + m[vp + 1]) * 256 + m[vp]
       r[:vp] += 4
     end
 
