@@ -4,4 +4,5 @@
         irmovl $3, %eax
         irmovl $4, %ebx
         addl %eax, %ebx
+        halt
 .end

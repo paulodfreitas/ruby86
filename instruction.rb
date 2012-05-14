@@ -133,7 +133,7 @@ class Instruction
     end
 
     if self.class.has_val
-      print ', $', regs[r[:val]]
+      print ', $', r[:vc].to_s(16)
     end
   end
 end
