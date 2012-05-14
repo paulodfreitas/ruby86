@@ -57,12 +57,12 @@ class Inc < ALUInstruction
 end
 
 class Dec < ALUInstruction
-  def self.has_rb
+  def self.has_ra
     false
   end
 
   def op(valA, valB)
-    valA - 1
+    valB - 1
   end
 end
 
