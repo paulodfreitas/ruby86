@@ -67,12 +67,12 @@ class Dec < ALUInstruction
 end
 
 class Not < ALUInstruction
-  def self.has_rb
+  def self.has_ra
     false
   end
 
   def op(valA, valB)
-    not valA
+    valB ^ -1
   end
 end
 
