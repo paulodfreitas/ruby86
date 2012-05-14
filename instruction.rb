@@ -128,7 +128,7 @@ class Instruction
       print ' %', regs[r[:ra]]
     end
 
-    if self.class.has_ra
+    if self.class.has_rb
       print ', %', regs[r[:rb]]
     end
 
