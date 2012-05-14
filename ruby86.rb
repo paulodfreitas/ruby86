@@ -21,6 +21,7 @@ class RubY86
   end
 
   #todo Make load_code more robust, to handle empty lines, spaces, more than one number on the same line etc
+  #todo Handle case when file doesn't existe with more grace
   def load_code filename
     i = 0
     code_lines = File.readlines filename

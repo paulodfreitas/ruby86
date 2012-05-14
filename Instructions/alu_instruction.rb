@@ -47,12 +47,12 @@ class Xorl < ALUInstruction
 end
 
 class Inc < ALUInstruction
-  def self.has_rb
+  def self.has_ra
     false
   end
 
   def op(valA, valB)
-    valA + 1
+    valB + 1
   end
 end
 
