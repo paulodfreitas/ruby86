@@ -15,8 +15,8 @@ class RubY86
   end
 
   def set_flags val
-    @of = val > 0x01111111 or val < -10000000
-    @sf = @of ^ val.abs == val
+    @of = (val & 0x80000000) ^ (val & 0x100000000)
+    @sf = (val & 0x80000000) == 1
     @zf = val == 0
   end
 
