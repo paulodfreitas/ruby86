@@ -30,7 +30,7 @@ end
 
 class Sub < ALUInstruction
   def op(valA, valB)
-    valA - valB
+    valA + valB ^ -1 + 1
   end
 end
 
