@@ -6,6 +6,7 @@ class Simulator
   end
 
   def main
+    puts "*** Y86 Simulator ***"
     catch (:exit) do
       while true
         print 'y86% '
@@ -33,7 +34,18 @@ class Simulator
   end
 
   def print_help
-    #todo: put the text here
+    puts "
+r          : reset
+d [address]: dump memory region
+e          : exit
+l filename : load assembly file
+j  address : jump to address
+s          : step
+x  [instrs]: execute <instrs> instructions or until halt
+p          : print register
+m          : print last memory accesses
+u [address]: unassemble
+g          : attach to screen"
   end
 
   def reset
@@ -78,7 +90,7 @@ class Simulator
 
   #todo: I'm not sure whether the registers have these numbers
   def print_registers
-    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi']
+    regs = %w(eax ecx edx ebx esp ebp esi edi)
 
     regs.each_with_index do |reg, i|
       print reg, '=', @processor.registers[i].to_s(16), "\n"
