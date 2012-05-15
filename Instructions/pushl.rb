@@ -6,7 +6,7 @@ class Pushl < Instruction
 
   def fetch
     r = super.fetch
-    r[:rb] = 5
+    r[:rb] = 4   #todo magic number
     return r
   end
 

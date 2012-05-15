@@ -1,16 +1,5 @@
 class Instruction
-  require_relative 'Instructions/alu_instruction'
-  require_relative 'Instructions/call'
-  require_relative 'Instructions/halt'
-  require_relative 'Instructions/irmovl'
-  require_relative 'Instructions/jmp'
-  require_relative 'Instructions/mr_movl'
-  require_relative 'Instructions/nop'
-  require_relative 'Instructions/popl'
-  require_relative 'Instructions/pushl'
-  require_relative 'Instructions/ret'
-  require_relative 'Instructions/rm_movl'
-  require_relative 'Instructions/rr_movl'
+  Dir.glob(File.dirname(__FILE__) + '/Instructions/*') {|file| require file}
 
   attr_accessor :processor
   protected :processor
@@ -38,12 +27,11 @@ class Instruction
     if self.class.has_ra or self.class.has_rb
       b = processor.memory[r[:vp]]
       r[:vp] += 1
-      #mask in binary?
-      r[:ra] = (b & 0xF0) >> 4
-      r[:rb] = b & 0x0F
+      r[:ra] = (b & 0xf0) >> 4
+      r[:rb] = b & 0x0f
 
       if not self.class.has_ra and r[:ra] != 0x8 or not self.class.has_rb and r[:rb] != 0x8
-        throw :invalid_instruction
+        throw :halt, "invalid register usage"
       end
     end
 
@@ -54,6 +42,7 @@ class Instruction
       r[:vp] += 4
     end
 
+    puts self.to_s(r)
     return r
   end
 
@@ -126,9 +115,26 @@ class Instruction
           when 0xa0 then Pushl
           when 0xb0 then Popl
           else
-            raise "Unhandled instruction: #{c.to_s}"    #todo: Remove this for something more elegant
+            throw :halt, "invalid instruction: #{processor.memory[processor.pc].to_s(16)}"
         end
     return c.new(processor)
+  end
+
+
+  def to_s r
+    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi']
+    print self.class.to_s
+    if self.class.has_ra
+      print ' %', regs[r[:ra]]
+    end
+
+    if self.class.has_rb
+      print ', %', regs[r[:rb]]
+    end
+
+    if self.class.has_val
+      print ', $', r[:vc].to_s(16)
+    end
   end
 end
 

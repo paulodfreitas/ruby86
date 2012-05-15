@@ -6,10 +6,9 @@ class Simulator
   end
 
   def main
-    puts "*** Y86 Simulator ***"
     catch (:exit) do
       while true
-        print "y86% "
+        print 'y86% '
         c = $stdin.getc
         case c
           when 'h' then print_help
@@ -26,35 +25,15 @@ class Simulator
             a = gets
             jmp a.to_i(16)
           when 's' then step
-          when 'x'
-            n = gets
-            execute n.to_i(16)
+          when 'x' then execute
           when 'p' then print_registers
-          when 'm' then print_last_memory_access
-          when 'u'
-            a = gets
-            unassemble a.to_i(16)
-          else
-            #todo should we need a something to flush input buffer/alert about wrong options values.
-            #printf("Invalid command '%c': type 'h' in console to see a list of available commands.\n", c)
         end
       end
     end
   end
 
   def print_help
-    puts "r          : reset
-d [address]: dump memory region
-e          : exit
-l filename : load assembly file
-j  address : jump to address
-s          : step
-x  [instrs]: execute <instrs> instructions or until halt
-p          : print register
-m          : print last memory accesses
-u [address]: unassemble
-g          : attach to screen
-"
+    #todo: put the text here
   end
 
   def reset
@@ -63,7 +42,7 @@ g          : attach to screen
 
   def dump addr
     10.times do |i|
-      print (addr + i).to_s(16), ': ', @processor.memory[addr + i]
+      print (addr + i).to_s(16), ': 0x', @processor.memory[addr + i].to_s(16)
       print "\n"
     end
   end
@@ -85,35 +64,25 @@ g          : attach to screen
   end
 
   #todo: Not sure if the parameter is the number of instructions or the instruction per si
-  def execute n
-    kind_of_halt = catch (:halt) do
-      n.times do
+  def execute
+    error_message = catch (:halt) do
+      while true
         @processor.step
       end
     end
 
-    case kind_of_halt
-      when :invalid_instruction
-        puts "Invalid instruction executed"
+    if error_message != nil
+      print "ERROR: ", error_message, "\n"
     end
   end
 
+  #todo: I'm not sure whether the registers have these numbers
   def print_registers
-    regs = %w(eax ecx edx ebx esp ebp esi edi)
+    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi']
 
     regs.each_with_index do |reg, i|
       print reg, '=', @processor.registers[i].to_s(16), "\n"
     end
-  end
-
-  #todo: Not sure if I need to implement this and if I do, what it should do
-  def print_last_memory_access
-
-  end
-
-  #todo: Not sure if I need to implement this and if I do, what it should do
-  def unassemble addr
-
   end
 end
 

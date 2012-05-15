@@ -22,6 +22,6 @@ class MRmovl < Instruction
 
   def write_back r
     processor.registers[r[:ra]] = r[:vm]
-    return vp
+    return r
   end
 end

@@ -19,4 +19,8 @@ class RMmovl < Instruction
     processor.memory[r[:ve]] = r[:va]
     return r
   end
+
+  def write_back r
+    return r
+  end
 end
