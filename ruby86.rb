@@ -14,12 +14,6 @@ class RubY86
     @memory = Memory.new 0x200000
   end
 
-  def set_flags val
-    @of = (val & 0x80000000) ^ (val & 0x100000000)
-    @sf = (val & 0x80000000) == 1
-    @zf = val == 0
-  end
-
   #todo Make load_code more robust, to handle empty lines, spaces, more than one number on the same line etc
   #todo Handle case when file doesn't existe with more grace
   def load_code filename

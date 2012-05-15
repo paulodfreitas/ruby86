@@ -11,8 +11,21 @@ class ALUInstruction < Instruction
 
   def execute r
     ve = op(r[:va], r[:vb])
-    processor.set_flags ve
+    processor.of = false
+
+    if self.is_a?(Add) or self.is_a?(Sub)
+      s1  = (r[:va] & 0x80000000) == 0x80000000
+      s2  = (r[:vb] & 0x80000000) == 0x80000000
+      s1 = (not s1) if self.is_a?(Sub)
+
+      b32 = (ve & 0x80000000) == 0x80000000
+      b33 = (ve & 0x100000000) == 0x100000000
+      processor.of = (s1 == s2) and (b32 ^ b33)
+    end
+
     r[:ve] = ve % 0x100000000
+    processor.sf = (r[:ve] & 0x80000000) == 0x80000000
+    processor.zf = r[:ve] == 0
     return r
   end
 
@@ -24,13 +37,13 @@ end
 
 class Add < ALUInstruction
   def op(valA, valB)
-    valA + valB
+    r = valA + valB
   end
 end
 
 class Sub < ALUInstruction
   def op(valA, valB)
-    valA + valB ^ -1 + 1
+    valB + (valA ^ (-1)) + 1
   end
 end
 
