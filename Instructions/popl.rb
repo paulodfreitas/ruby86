@@ -5,8 +5,14 @@ class Popl < Instruction
   end
 
   def fetch
-    r = super.fetch
+    r = {}
+    r[:vp] = processor.pc + 1
+
+    b = processor.memory[r[:vp]]
+    r[:vp] += 1
+    r[:ra] = (b & 0xf0) >> 4
     r[:rb] = 5
+
     return r
   end
 
@@ -15,13 +21,17 @@ class Popl < Instruction
   end
 
   def memory r
-    r[:vm] =  processor.memory[r[:va]]
+    r[:vm] =  processor.memory[r[:vb]]
     return r
   end
 
   def write_back r
     processor.registers[r[:rb]] = r[:ve]
-    processor.registers[r[:ra]] = r[:vm]
+    if r[:ra] == 8        # instruction is popf
+      processor.decode_flags r[:vm]
+    else
+      processor.registers[r[:ra]] = r[:vm]
+    end
     return r
   end
 end

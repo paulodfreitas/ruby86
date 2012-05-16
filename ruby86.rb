@@ -15,7 +15,7 @@ class RubY86
   end
 
   #todo Make load_code more robust, to handle empty lines, spaces, more than one number on the same line etc
-  #todo Handle case when file doesn't existe with more grace
+  #todo Handle case when file doesn't exist with more grace
   def load_code filename
     i = 0
     code_lines = File.readlines filename
@@ -41,20 +41,14 @@ class RubY86
     instruction.process
   end
 
-  #def run filename
-  #  load_code filename
-  #
-  #  kind_of_halt = catch (:halt) do
-  #    while true
-  #      step
-  #    end
-  #  end
-  #
-  #  case kind_of_halt
-  #    when :invalid_instruction
-  #      puts "Invalid instruction executed"
-  #  end
-  #end
+  def encode_flags
+    return (@zf << 2) | (@of << 1) | (@sf);
+  end
 
+  def decode_flags value
+    @zf = (value & 0x4) >> 2
+    @of = (value & 0x2) >> 1
+    @sf = (value & 0x1)
+  end
 
 end

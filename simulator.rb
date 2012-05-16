@@ -88,7 +88,6 @@ g          : attach to screen"
     end
   end
 
-  #todo: I'm not sure whether the registers have these numbers
   def print_registers
     regs = %w(eax ecx edx ebx esp ebp esi edi)
 
