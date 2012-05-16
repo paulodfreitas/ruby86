@@ -21,11 +21,12 @@ class Instruction
   end
 
   def fetch
+    puts 'Hail to the king, baby!'
     r = {}
     r[:vp] = processor.pc + 1
 
     if self.class.has_ra or self.class.has_rb
-      b = processor.memory[r[:vp]]
+      b = processor.memory.get_byte(r[:vp])
       r[:vp] += 1
       r[:ra] = (b & 0xf0) >> 4
       r[:rb] = b & 0x0f
@@ -36,13 +37,12 @@ class Instruction
     end
 
     if self.class.has_val
-      m = processor.memory
-      vp = r[:vp]
-      r[:vc] = ((m[vp + 3] * 256 + m[vp + 2]) * 256 + m[vp + 1]) * 256 + m[vp]
+      r[:vc] = processor.memory[r[:vp]]
       r[:vp] += 4
     end
 
     puts self.to_s(r)
+    puts "I'm not dead yet"
     return r
   end
 
@@ -86,7 +86,8 @@ class Instruction
   end
 
   def self.factory processor
-    c = case processor.memory[processor.pc]
+    icode = processor.memory.get_byte(processor.pc)
+    c = case icode
           when 0x00 then Nop
           when 0x10 then Halt
           when 0x20 then RRmovl
@@ -115,14 +116,14 @@ class Instruction
           when 0xa0 then Pushl
           when 0xb0 then Popl
           else
-            throw :halt, "invalid instruction: #{processor.memory[processor.pc].to_s(16)}"
+            throw :halt, "invalid instruction: #{processor.memory.get_byte(processor.pc).to_s(16)}"
         end
     return c.new(processor)
   end
 
 
   def to_s r
-    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi']
+    regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi', 'NO-REG']
     print self.class.to_s
     if self.class.has_ra
       print ' %', regs[r[:ra]]

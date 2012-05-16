@@ -14,18 +14,19 @@ class Pushl < Instruction
 
 
     r[:rb] = 4   #todo magic number
+    puts self.to_s(r)
     return r
   end
 
   def decode r
-    if r[:ra] == 8 # instruction is pushf
+    if r[:ra] == 0x8 # instruction is pushf
       r[:va] = processor.encode_flags
     else
-      r[:va] = processor.registers[r[:ra]] if r[:ra] != nil
+      r[:va] = processor.registers[r[:ra]]
     end
 
-    r[:vb] = processor.registers[r[:rb]] if r[:rb] != nil
-    r
+    r[:vb] = processor.registers[r[:rb]]
+    return r
   end
 
   def op(va, vb, vc)

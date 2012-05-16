@@ -31,7 +31,8 @@ class RubY86
         next
       end
 
-      @memory[i] = line.scan(/\h+/).first.to_i(16)
+      byte = line.scan(/\h+/).first.to_i(16)
+      @memory.set_byte(i, byte)
       i+=1
     end
   end

@@ -8,11 +8,12 @@ class Popl < Instruction
     r = {}
     r[:vp] = processor.pc + 1
 
-    b = processor.memory[r[:vp]]
+    b = processor.memory.get_byte(r[:vp])
     r[:vp] += 1
     r[:ra] = (b & 0xf0) >> 4
-    r[:rb] = 5
+    r[:rb] = 4
 
+    puts self.to_s(r)
     return r
   end
 

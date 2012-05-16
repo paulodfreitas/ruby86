@@ -54,7 +54,7 @@ g          : attach to screen"
 
   def dump addr
     10.times do |i|
-      print (addr + i).to_s(16), ': 0x', @processor.memory[addr + i].to_s(16)
+      print (addr + i).to_s(16), ': 0x', @processor.memory.get_byte(addr + i).to_s(16)
       print "\n"
     end
   end
