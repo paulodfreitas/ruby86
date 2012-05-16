@@ -9,22 +9,16 @@ class ALUInstruction < Instruction
     true
   end
 
+  def handle_overflow r
+    false
+  end
+
   def execute r
-    ve = op(r[:va], r[:vb])
-    processor.of = false
+    r[:ve] = op(r[:va], r[:vb])
 
-    if self.is_a?(Add) or self.is_a?(Sub)
-      s1  = (r[:va] & 0x80000000) == 0x80000000
-      s2  = (r[:vb] & 0x80000000) == 0x80000000
-      s1 = (not s1) if self.is_a?(Sub)
+    processor.of = handle_overflow r
 
-      b32 = (ve & 0x80000000) == 0x80000000
-      b33 = (ve & 0x100000000) == 0x100000000
-
-      processor.of = (s1 == s2) & (b32 ^ b33)
-    end
-
-    r[:ve] = ve % 0x100000000
+    r[:ve] = r[:ve] % 0x100000000
     processor.sf = (r[:ve] & 0x80000000) == 0x80000000
     processor.zf = r[:ve] == 0
     return r
@@ -37,12 +31,32 @@ class ALUInstruction < Instruction
 end
 
 class Add < ALUInstruction
+  def handle_overflow r
+    s1  = (r[:va] & 0x80000000) == 0x80000000
+    s2  = (r[:vb] & 0x80000000) == 0x80000000
+
+    b32 = (r[:ve] & 0x80000000) == 0x80000000
+    b33 = (r[:ve] & 0x100000000) == 0x100000000
+
+    return (s1 == s2) & (b32 ^ b33)
+  end
+
   def op(valA, valB)
     r = valA + valB
   end
 end
 
 class Sub < ALUInstruction
+  def handle_overflow r
+    s1  = (r[:va] & 0x80000000) == 0x80000000
+    s2  = (r[:vb] & 0x80000000) == 0x00000000
+
+    b32 = (r[:ve] & 0x80000000) == 0x80000000
+    b33 = (r[:ve] & 0x100000000) == 0x100000000
+
+    return (s1 == s2) & (b32 ^ b33)
+  end
+
   def op(valA, valB)
     valB + (valA ^ (-1)) + 1
   end
@@ -61,6 +75,10 @@ class Xorl < ALUInstruction
 end
 
 class Inc < ALUInstruction
+  def handle_overflow r
+    return r[:ve] == 0x10000000
+  end
+
   def self.has_ra
     false
   end
@@ -71,12 +89,16 @@ class Inc < ALUInstruction
 end
 
 class Dec < ALUInstruction
+  def handle_overflow r
+    return r[:ve] == 0x17fffffff
+  end
+
   def self.has_ra
     false
   end
 
   def op(valA, valB)
-    valB - 1
+    valB + 0xffffffff
   end
 end
 

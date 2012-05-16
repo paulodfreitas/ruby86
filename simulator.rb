@@ -109,7 +109,7 @@ p          : print register"
     regs.each_with_index do |reg, i|
       v = @processor.registers[i]
       neg = false
-      if v >= 0x10000000
+      if v >= 0x80000000
         neg = true
         v = (v ^ 0xffffffff) + 1
       end
