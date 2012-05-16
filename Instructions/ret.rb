@@ -1,6 +1,6 @@
 class Ret < Instruction
   def fetch
-    r = super.fetch
+    r = super
     r[:ra] = 4 #todo magic number
     r[:rb] = 4
     return r

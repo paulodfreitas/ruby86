@@ -4,7 +4,7 @@ class Call < Instruction
   end
 
   def fetch
-    r = super.fetch
+    r = super
     r[:rb] = 4         #todo Having a magic number is inelegant
     return r
   end
