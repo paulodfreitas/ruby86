@@ -20,7 +20,8 @@ class ALUInstruction < Instruction
 
       b32 = (ve & 0x80000000) == 0x80000000
       b33 = (ve & 0x100000000) == 0x100000000
-      processor.of = (s1 == s2) and (b32 ^ b33)
+
+      processor.of = (s1 == s2) & (b32 ^ b33)
     end
 
     r[:ve] = ve % 0x100000000

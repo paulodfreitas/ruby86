@@ -1,0 +1,6 @@
+#!/bin/sh
+filename=$(basename $1 .asm)
+/home/rafael/doc/school/oc1/urasm/urasm -o $filename.tmp.asm $1;
+/home/rafael/doc/school/oc1/urlink/urlink -o $filename.out $filename.tmp.asm
+rm $filename.tmp.asm;
+rm $filename.lis

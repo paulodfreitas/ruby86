@@ -6,7 +6,7 @@ class RubY86
   attr_reader :pid
 
   def initialize
-    @zf = @of = @sf = 0
+    @zf = @of = @sf = false
     @pid = 0
     @pc = 0
     @registers = [0]*8
@@ -43,13 +43,16 @@ class RubY86
   end
 
   def encode_flags
-    return (@zf << 2) | (@of << 1) | (@sf);
+    zf = @zf ? 1 : 0
+    of = @of ? 1 : 0
+    sf = @sf ? 1 : 0
+    return (zf << 2) + (of << 1) + sf
   end
 
   def decode_flags value
-    @zf = (value & 0x4) >> 2
-    @of = (value & 0x2) >> 1
-    @sf = (value & 0x1)
+    @zf = ((value & 0x4) >> 2) == 1
+    @of = ((value & 0x2) >> 1) == 1
+    @sf = (value & 0x1) == 1
   end
 
 end

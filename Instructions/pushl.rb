@@ -8,18 +8,18 @@ class Pushl < Instruction
     r = {}
     r[:vp] = processor.pc + 1
 
-    b = processor.memory[r[:vp]]
+    b = processor.memory.get_byte(r[:vp])
     r[:vp] += 1
     r[:ra] = (b & 0xf0) >> 4
 
-
+    @is_pushf = b == 0x0 or b == 0x88
     r[:rb] = 4   #todo magic number
     puts self.to_s(r)
     return r
   end
 
   def decode r
-    if r[:ra] == 0x8 # instruction is pushf
+    if @is_pushf # instruction is pushf
       r[:va] = processor.encode_flags
     else
       r[:va] = processor.registers[r[:ra]]

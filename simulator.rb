@@ -8,8 +8,8 @@ class Simulator
   def main
     puts "*** Y86 Simulator ***"
     catch (:exit) do
+      print 'y86% '
       while true
-        print 'y86% '
         c = $stdin.getc
         case c
           when 'h' then print_help
@@ -28,7 +28,10 @@ class Simulator
           when 's' then step
           when 'x' then execute
           when 'p' then print_registers
+          else
+            next
         end
+        print 'y86% '
       end
     end
   end
@@ -41,11 +44,8 @@ e          : exit
 l filename : load assembly file
 j  address : jump to address
 s          : step
-x  [instrs]: execute <instrs> instructions or until halt
-p          : print register
-m          : print last memory accesses
-u [address]: unassemble
-g          : attach to screen"
+x          : execute instructions or until halt
+p          : print register"
   end
 
   def reset
@@ -64,7 +64,9 @@ g          : attach to screen"
   end
 
   def load_file filename
-    @processor.load_code filename
+    catch (:error) do
+      @processor.load_code filename rescue puts "Unable to open file"
+    end
   end
 
   def jmp addr
@@ -72,7 +74,18 @@ g          : attach to screen"
   end
 
   def step
-    @processor.step
+    catch (:end) do
+      error_message = catch (:halt) do
+        @processor.step
+        throw :end
+      end
+
+      if error_message != nil
+        print "ERROR: ", error_message, "\n"
+      else
+        puts "halted"
+      end
+    end
   end
 
   #todo: Not sure if the parameter is the number of instructions or the instruction per si
@@ -85,6 +98,8 @@ g          : attach to screen"
 
     if error_message != nil
       print "ERROR: ", error_message, "\n"
+    else
+      puts "halted"
     end
   end
 
@@ -92,8 +107,18 @@ g          : attach to screen"
     regs = %w(eax ecx edx ebx esp ebp esi edi)
 
     regs.each_with_index do |reg, i|
-      print reg, '=', @processor.registers[i].to_s(16), "\n"
+      v = @processor.registers[i]
+      neg = false
+      if v >= 0x10000000
+        neg = true
+        v = (v ^ 0xffffffff) + 1
+      end
+      print reg, ' = ', neg ? '-' : '', '0x', v.to_s(16), "\n"
     end
+
+    print 'OF = ', @processor.of, "\n"
+    print 'ZF = ', @processor.zf, "\n"
+    print 'SF = ', @processor.sf, "\n"
   end
 end
 
