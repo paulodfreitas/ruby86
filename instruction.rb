@@ -21,7 +21,6 @@ class Instruction
   end
 
   def fetch
-    puts 'Hail to the king, baby!'
     r = {}
     r[:vp] = processor.pc + 1
 
@@ -42,7 +41,6 @@ class Instruction
     end
 
     puts self.to_s(r)
-    puts "I'm not dead yet"
     return r
   end
 
