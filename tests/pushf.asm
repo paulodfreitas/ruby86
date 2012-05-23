@@ -1,6 +1,9 @@
 .module m0
 .pseg
 ;Teste da semantica da instrução Popf para o Y86
+	   ;irmovl $100, %esp
+	   ;irmovl $3, %eax
+	   ;pushl %eax
 	irmovl $100,%esp
 	irmovl $3,%eax
 	pushl %eax

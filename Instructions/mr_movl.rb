@@ -11,8 +11,14 @@ class MRmovl < Instruction
     true
   end
 
+  def fetch r
+    r = super(r)
+    r[:rb], r[:ra] = r[:ra], r[:rb]
+    return r
+  end
+
   def op(va, vb, vc)
-    vb + vc
+    va + vc
   end
 
   def memory r
@@ -21,7 +27,11 @@ class MRmovl < Instruction
   end
 
   def write_back r
-    processor.registers[r[:ra]] = r[:vm]
+    processor.registers[r[:rb]] = r[:vm]
     return r
+  end
+
+  def get_registers_to_be_writen r
+      return {r[:rb] => r[:vm]}
   end
 end

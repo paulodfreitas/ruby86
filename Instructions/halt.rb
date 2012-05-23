@@ -1,5 +1,5 @@
 class Halt < Instruction
-  def execute r
+  def write_back r
     throw :halt
   end
 end

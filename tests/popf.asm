@@ -8,7 +8,7 @@
 	irmovl $80000000, %eax
 	irmovl $ffffffff, %ebx
 	addl %eax, %ebx
-	popl %eax
+	popl %ecx
 	popf
 	halt
 .end

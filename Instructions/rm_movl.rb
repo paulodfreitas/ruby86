@@ -23,4 +23,8 @@ class RMmovl < Instruction
   def write_back r
     return r
   end
+
+  def get_registers_to_be_writen r
+    return {}
+  end
 end

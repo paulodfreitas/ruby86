@@ -23,11 +23,11 @@ class ALUInstruction < Instruction
     processor.zf = r[:ve] == 0
     return r
   end
-
-  def write_back r
-    processor.registers[r[:rb]] = r[:ve]
-    return r
-  end
+  #
+  #def write_back r
+  #  processor.registers[r[:rb]] = r[:ve]
+  #  return r
+  #end
 end
 
 class Add < ALUInstruction

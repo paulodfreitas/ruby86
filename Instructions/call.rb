@@ -3,9 +3,10 @@ class Call < Instruction
     true
   end
 
-  def fetch
-    r = super
+  def fetch r
+    r = super r
     r[:rb] = 4         #todo Having a magic number is inelegant
+    r[:pred_pc] = r[:vc]
     return r
   end
 
@@ -16,9 +17,5 @@ class Call < Instruction
   def memory r
     processor.memory[r[:ve]] = r[:vp]
     return r
-  end
-
-  def pc_update r
-    processor.pc = r[:vc]
   end
 end

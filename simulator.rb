@@ -3,6 +3,7 @@ require_relative 'ruby86.rb'
 class Simulator
   def initialize
     @processor = RubY86.new
+    Instruction.reset self
   end
 
   def main
@@ -49,7 +50,7 @@ p          : print register"
   end
 
   def reset
-    @processor.pc = 0
+    Instruction.reset self
   end
 
   def dump addr

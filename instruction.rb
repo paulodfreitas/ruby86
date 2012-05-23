@@ -16,13 +16,21 @@ class Instruction
     false
   end
 
+  def self.reset processor
+    @@fin = {instruction: Nop.new(processor), pred_pc: 0}
+    @@din = {instruction: Nop.new(processor)}
+    @@ein = {instruction: Nop.new(processor)}
+    @@min = {instruction: Nop.new(processor)}
+    @@win = {instruction: Nop.new(processor)}
+    @@halted = false
+  end
+
   def initialize(processor)
     @processor = processor
   end
 
-  def fetch
-    r = {}
-    r[:vp] = processor.pc + 1
+  def fetch(r)
+    r[:vp] = r[:pred_pc] + 1
 
     if self.class.has_ra or self.class.has_rb
       b = processor.memory.get_byte(r[:vp])
@@ -40,51 +48,125 @@ class Instruction
       r[:vp] += 4
     end
 
-    puts self.to_s(r)
+    r[:pred_pc] = r[:vp]
+
     return r
   end
 
-  def decode r
+  def decode(r)
     r[:va] = processor.registers[r[:ra]] if r[:ra] != nil
     r[:vb] = processor.registers[r[:rb]] if r[:rb] != nil
 
     return r
   end
 
-  def execute r
+  def execute(r)
     r[:ve] = op(r[:va], r[:vb], r[:vc])
     return r
   end
 
-  def memory r
+  def op(va, vb, vc)
+    return nil
+  end
+
+  def memory(r)
     return r
   end
 
-  def write_back r
+  def write_back(r)
     if r[:rb] != nil and r[:rb] != 0x8
       processor.registers[r[:rb]] = r[:ve]
     end
     return r
   end
 
-  def pc_update r
-    processor.pc = r[:vp]
+  def get_registers_to_be_writen r
+    if r[:rb] != nil and r[:rb] != 0x8
+      return {r[:rb] => r[:ve]}
+    end
+
+    return {}
+  end
+  #
+  #def pc_update r
+  #  processor.pc = r[:vp]
+  #end
+
+  def self.process processor
+    @@fin = {instruction: self.nextInstruction(processor, @@fin[:pred_pc]), pred_pc: @@fin[:pred_pc]}
+    fout = @@fin[:instruction].fetch @@fin
+    dout = @@din[:instruction].decode @@din
+    eout = @@ein[:instruction].execute @@ein
+    mout = @@min[:instruction].memory @@min
+    wout = @@win[:instruction].write_back @@win
+
+    regs_e = @@ein[:instruction].get_registers_to_be_writen eout
+    regs_m = @@min[:instruction].get_registers_to_be_writen mout
+    regs_w = @@win[:instruction].get_registers_to_be_writen wout
+
+
+    @@halted = eout[:instruction].is_a? Halt
+    stall_decode = @@halted
+    mispredicted = false
+
+    #forwarding
+    {:ra => :va,:rb => :vb}.each do |reg_symbol, val_symbol|
+      reg = dout[reg_symbol]
+      if reg != nil
+        [regs_w, regs_m, regs_e].each do |regs|
+          if  regs[reg] != nil
+            dout[val_symbol] = regs[reg]
+          elsif regs.has_key?(reg)
+            stall_decode = true
+          end
+        end
+      end
+    end
+
+    #if fout[:instruction].is_a? Call or fout[:instruction].is_a? Jmp
+    #  fout[:pred_pc] = fout[:vc]
+    #end
+
+    if eout[:instruction].is_a? Ret
+      stall_decode = true
+    end
+
+    if mout[:instruction].is_a? Ret
+      mispredicted = true
+      fout[:pred_pc] = mout[:vm]
+    end
+
+    if eout[:instruction].is_a? Jmp and not eout[:cc]
+      mispredicted = true
+      fout[:pred_pc] = eout[:vp]
+    end
+
+    normal = (not mispredicted) and (not stall_decode)
+
+    if normal
+      @@din = fout
+      @@ein = dout
+    end
+
+    if stall_decode
+      @@ein = {instruction: Nop.new(processor)}
+    else
+      @@fin = {pred_pc: fout[:pred_pc]}
+    end
+
+    if mispredicted
+      @@din = {instruction: Nop.new(processor)}
+      @@ein = {instruction: Nop.new(processor)}
+    end
+
+    @@min = eout
+    @@win = mout
+
+    puts wout[:instruction].to_s(wout)
   end
 
-#memory valA, valE, valP
-#write_back rb, valE, esp, valM
-
-  def process
-    r = fetch
-    r = decode r
-    r = execute r
-    r = memory r
-    r = write_back r
-    pc_update r
-  end
-
-  def self.factory processor
-    icode = processor.memory.get_byte(processor.pc)
+  def self.nextInstruction(processor, pred_pc)
+    icode = processor.memory.get_byte(pred_pc)
     c = case icode
           when 0x00 then Nop
           when 0x10 then Halt
@@ -114,7 +196,7 @@ class Instruction
           when 0xa0 then Pushl
           when 0xb0 then Popl
           else
-            throw :halt, "invalid instruction: #{processor.memory.get_byte(processor.pc).to_s(16)}"
+            throw :halt, "invalid instruction: #{icode.to_s(16)}"
         end
     return c.new(processor)
   end

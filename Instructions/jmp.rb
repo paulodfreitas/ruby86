@@ -3,13 +3,15 @@ class Jmp < Instruction
     true
   end
 
-  def execute r
-    r[:cc] = op
+  def fetch r
+    r = super(r)
+    r[:pred_pc] = r[:vc]
     return r
   end
 
-  def pc_update r
-    processor.pc = r[:cc] ? r[:vc] : r[:vp]
+  def execute r
+    r[:cc] = op
+    return r
   end
 
   def op

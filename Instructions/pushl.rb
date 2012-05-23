@@ -4,24 +4,22 @@ class Pushl < Instruction
     true
   end
 
-  def fetch
-    r = {}
-    r[:vp] = processor.pc + 1
+  def fetch r
+    r[:vp] = r[:pred_pc] + 1
 
     b = processor.memory.get_byte(r[:vp])
     r[:vp] += 1
     r[:ra] = (b & 0xf0) >> 4
 
-    @is_pushf = b == 0x0 or b == 0x88
+    @is_pushf = b == 0x00 or b == 0x88
     r[:rb] = 4   #todo magic number
-    puts self.to_s(r)
+
+    r[:pred_pc] = r[:vp]
     return r
   end
 
   def decode r
-    if @is_pushf # instruction is pushf
-      r[:va] = processor.encode_flags
-    else
+    if not @is_pushf
       r[:va] = processor.registers[r[:ra]]
     end
 
@@ -30,11 +28,16 @@ class Pushl < Instruction
   end
 
   def op(va, vb, vc)
-    vb - 4
+    vb - (@is_pushf? 1 : 4)
   end
 
   def memory r
-    processor.memory[r[:ve]] = r[:va]
+    if @is_pushf
+      processor.memory.set_byte(r[:ve], processor.encode_flags)
+    else
+      processor.memory[r[:ve]] = r[:va]
+    end
+
     return r
   end
 end

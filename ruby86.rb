@@ -10,6 +10,7 @@ class RubY86
     @pid = 0
     @pc = 0
     @registers = [0]*8
+    Instruction.reset self
 
     @memory = Memory.new 0x200000
   end
@@ -38,8 +39,7 @@ class RubY86
   end
 
   def step
-    instruction = Instruction.factory self
-    instruction.process
+    Instruction.process self
   end
 
   def encode_flags
@@ -54,5 +54,4 @@ class RubY86
     @of = ((value & 0x2) >> 1) == 1
     @sf = (value & 0x1) == 1
   end
-
 end
