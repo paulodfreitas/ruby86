@@ -31,6 +31,10 @@ class Pushl < Instruction
     vb - (@is_pushf? 1 : 4)
   end
 
+  def is_pushf
+    return @is_pushf
+  end
+
   def memory r
     if @is_pushf
       processor.memory.set_byte(r[:ve], processor.encode_flags)

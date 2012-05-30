@@ -16,6 +16,10 @@ class Popl < Instruction
     return r
   end
 
+  def is_popf
+    return @is_popf
+  end
+
   def op(va, vb, vc)
     vb + (@is_popf ? 1 : 4)
   end

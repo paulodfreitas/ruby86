@@ -1,3 +1,4 @@
+#todo Verify in pop*/push* whether the -4 +4 may cause problems in overflow conditions
 class Instruction
   Dir.glob(File.dirname(__FILE__) + '/Instructions/*') {|file| require file}
 
@@ -93,7 +94,8 @@ class Instruction
   #end
 
   def self.process processor
-    @@fin = {instruction: self.nextInstruction(processor, @@fin[:pred_pc]), pred_pc: @@fin[:pred_pc]}
+    old_pc = @@fin[:pred_pc]
+    @@fin[:instruction] = Instruction.fetch(processor, @@fin[:pred_pc])
     fout = @@fin[:instruction].fetch @@fin
     dout = @@din[:instruction].decode @@din
     eout = @@ein[:instruction].execute @@ein
@@ -104,8 +106,6 @@ class Instruction
     regs_m = @@min[:instruction].get_registers_to_be_writen mout
     regs_w = @@win[:instruction].get_registers_to_be_writen wout
 
-
-    @@halted = eout[:instruction].is_a? Halt
     stall_decode = @@halted
     mispredicted = false
 
@@ -123,10 +123,6 @@ class Instruction
       end
     end
 
-    #if fout[:instruction].is_a? Call or fout[:instruction].is_a? Jmp
-    #  fout[:pred_pc] = fout[:vc]
-    #end
-
     if eout[:instruction].is_a? Ret
       stall_decode = true
     end
@@ -141,7 +137,18 @@ class Instruction
       fout[:pred_pc] = eout[:vp]
     end
 
-    normal = (not mispredicted) and (not stall_decode)
+    [eout[:instruction], mout[:instruction]].each do |i|
+      di = dout[:instruction]
+      if i.is_a? Popl and i.is_popf and (di.is_a? Jmp or (di.is_a? Pushl and di.is_pushf) or di.is_a? ALUInstruction)
+        stall_decode = true
+      end
+    end
+
+    if eout[:instruction].is_a? Pushl and eout[:instruction].is_pushf and dout[:instruction].is_a? ALUInstruction
+      stall_decode = true
+    end
+
+    normal = (not mispredicted) && (not stall_decode)
 
     if normal
       @@din = fout
@@ -150,6 +157,7 @@ class Instruction
 
     if stall_decode
       @@ein = {instruction: Nop.new(processor)}
+      @@fin = {pred_pc: old_pc}
     else
       @@fin = {pred_pc: fout[:pred_pc]}
     end
@@ -165,7 +173,7 @@ class Instruction
     puts wout[:instruction].to_s(wout)
   end
 
-  def self.nextInstruction(processor, pred_pc)
+  def Instruction.fetch(processor, pred_pc)
     icode = processor.memory.get_byte(pred_pc)
     c = case icode
           when 0x00 then Nop
@@ -196,13 +204,17 @@ class Instruction
           when 0xa0 then Pushl
           when 0xb0 then Popl
           else
-            throw :halt, "invalid instruction: #{icode.to_s(16)}"
+            Nop
         end
     return c.new(processor)
   end
 
 
-  def to_s r
+  def to_s r=[]
+    if r == []
+      return ""
+    end
+
     regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi', 'NO-REG']
     print self.class.to_s
     if self.class.has_ra
