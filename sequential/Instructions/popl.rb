@@ -1,4 +1,3 @@
-#todo Remeber to add popl
 class Popl < Instruction
   def self.has_ra
     true

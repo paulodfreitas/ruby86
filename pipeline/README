@@ -1,0 +1,12 @@
+Autores do projeto: Paulo de Freita Coleta Neto 
+                    Rafael Martins de Souza
+
+EXECUTANDO O SIMULADOR
+
+Este simulador foi desenvolvido utilizando a linguagem ruby, versão 1.9.3.
+
+Seja $RUBY o caminho até o interpretador ruby e $LOCAL o diretório base do projeto.
+
+Para executar o simulador basta executar o seguinte comando:
+
+  $RUBY $LOCAL/simulator.rb

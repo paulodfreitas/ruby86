@@ -1,4 +1,3 @@
-#todo Verify in pop*/push* whether the -4 +4 may cause problems in overflow conditions
 class Instruction
   Dir.glob(File.dirname(__FILE__) + '/Instructions/*') {|file| require file}
 
@@ -169,8 +168,6 @@ class Instruction
 
     @@min = eout
     @@win = mout
-
-    puts wout[:instruction].to_s(wout)
   end
 
   def Instruction.fetch(processor, pred_pc)

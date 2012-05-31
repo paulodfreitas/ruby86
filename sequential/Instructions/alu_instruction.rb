@@ -1,5 +1,3 @@
-#todo Remember to handle things like sum of two big numbers being negative etc
-#todo Remember about endianess. The processor must be little endian
 class ALUInstruction < Instruction
   def self.has_ra
     true

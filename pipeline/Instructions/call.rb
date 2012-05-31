@@ -5,7 +5,7 @@ class Call < Instruction
 
   def fetch r
     r = super r
-    r[:rb] = 4         #todo Having a magic number is inelegant
+    r[:rb] = 4
     r[:pred_pc] = r[:vc]
     return r
   end

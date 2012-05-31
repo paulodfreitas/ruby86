@@ -1,4 +1,3 @@
-#todo Remeber to add pushf
 class Pushl < Instruction
   def self.has_ra
     true
@@ -13,7 +12,7 @@ class Pushl < Instruction
     r[:ra] = (b & 0xf0) >> 4
 
     @is_pushf = b == 0x0 or b == 0x88
-    r[:rb] = 4   #todo magic number
+    r[:rb] = 4
     puts self.to_s(r)
     return r
   end

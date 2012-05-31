@@ -88,7 +88,6 @@ p          : print register"
     end
   end
 
-  #todo: Not sure if the parameter is the number of instructions or the instruction per si
   def execute
     error_message = catch (:halt) do
       while true
