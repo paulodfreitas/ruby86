@@ -40,7 +40,7 @@ class Instruction
       r[:rb] = b & 0x0f
 
       if not self.class.has_ra and r[:ra] != 0x8 or not self.class.has_rb and r[:rb] != 0x8
-        throw :halt, "invalid register usage"
+        throw :halt, "invalid register usage in instruction: #{self.class}"
       end
     end
 

@@ -21,7 +21,7 @@ class Popl < Instruction
   end
 
   def op(va, vb, vc)
-    vb + (@is_popf ? 1 : 4)
+    (vb + (@is_popf ? 1 : 4)) % 0x100000000
   end
 
   def memory r
