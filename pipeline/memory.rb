@@ -32,7 +32,7 @@ class Memory < Array
   end
 
   def [](index)
-    if i +3 >= @size
+    if index +3 >= @size
       throw :halt, "accessed invalid memory"
     end
 
