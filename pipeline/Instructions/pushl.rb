@@ -28,7 +28,8 @@ class Pushl < Instruction
   end
 
   def op(va, vb, vc)
-    vb - (@is_pushf? 1 : 4)
+    off =  @is_pushf? 1 : 4
+    return (vb + (off ^ (-1)) + 1) % 0x100000000
   end
 
   def is_pushf
