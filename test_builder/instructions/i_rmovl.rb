@@ -5,7 +5,7 @@ class IRmovl < Instruction
     @ifun = "0"
 
     @rB = rand 7
-    @value = rand(1 << 31)
+    @value = rand(1 << 21)
     @size = 6
   end
 
@@ -13,8 +13,17 @@ class IRmovl < Instruction
     "8" + @rB.to_s + "\n" + value_string
   end
 
+  def int_to_s_16_zerofill value, nr_to_fill
+    value = value.to_s 16
+    (nr_to_fill - value.size).times do
+      value = "0"+value
+    end
+
+    value
+  end
+
   def value_string
-    value_string = @value.to_s(16)
+    value_string = int_to_s_16_zerofill(@value, 8)
     value_string[6..7] + "\n" +
     value_string[4..5] + "\n" +
     value_string[2..3] + "\n" +

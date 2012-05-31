@@ -1,6 +1,6 @@
 require_relative 'ruby86.rb'
 
-class SequentialSimulator
+class Simulator
   def initialize
     @processor = RubY86.new
   end
@@ -122,4 +122,4 @@ p          : print register"
   end
 end
 
-SequentialSimulator.new.main
+Simulator.new.main
