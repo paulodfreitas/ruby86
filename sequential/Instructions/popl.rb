@@ -24,7 +24,7 @@ class Popl < Instruction
 
   def memory r
     if @is_popf
-      r[:vm] =  processor.memory.get_byte(r[:vb])
+      r[:vm] =  processor.memory[r[:vb]]
     else
       r[:vm] =  processor.memory[r[:vb]]
     end
