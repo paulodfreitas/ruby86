@@ -83,8 +83,8 @@ class Instruction
     pc_update r
   end
 
-  def self.factory processor
-    icode = processor.memory.get_byte(processor.pc)
+  def self.factory core, memory
+    icode = memory.get_byte(core.pc)
     c = case icode
           when 0x00 then Nop
           when 0x10 then Halt
@@ -116,7 +116,7 @@ class Instruction
           else
             throw :halt, "invalid instruction: #{processor.memory.get_byte(processor.pc).to_s(16)}"
         end
-    return c.new(processor)
+    return c.new(core)
   end
 
 

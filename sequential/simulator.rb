@@ -1,8 +1,8 @@
 require_relative 'ruby86.rb'
 
 class Simulator
-  def initialize
-    @processor = RubY86.new
+  def initialize ncores
+    @machine = RubY86.new
   end
 
   def main
@@ -49,12 +49,14 @@ p          : print register"
   end
 
   def reset
-    @processor.pc = 0
+    @cores.each do |core|
+      core.pc = 0
+    end
   end
 
   def dump addr
     10.times do |i|
-      print (addr + i).to_s(16), ': 0x', @processor.memory.get_byte(addr + i).to_s(16)
+      print (addr + i).to_s(16), ': 0x', @machine.memory.get_byte(addr + i).to_s(16)
       print "\n"
     end
   end
@@ -63,62 +65,79 @@ p          : print register"
     throw :exit
   end
 
-  def load_file filename
-    catch (:error) do
-      @processor.load_code filename rescue puts "Unable to open file"
+  def load_code filename
+    i = 0
+    code_lines = File.readlines filename
+    code_lines.each do |line|
+      line.strip!
+
+      if line.start_with? "#"
+        next
+      end
+
+      if line.start_with? "@"
+        i = line.scan(/\h+/).first.to_i(16)
+        next
+      end
+
+      byte = line.scan(/\h+/).first.to_i(16)
+      @machine.memory.set_byte(i, byte)
+      i+=1
     end
   end
 
-  def jmp addr
-    @processor.pc = addr
+  def load_file filename
+    catch (:error) do
+      load_code filename rescue puts "Unable to open file"
+    end
   end
 
-  def step
-    catch (:end) do
-      error_message = catch (:halt) do
-        @processor.step
-        throw :end
-      end
+  #todo: Must take in consideration which core it refers to
+  #def jmp addr
+  #  #@processor.pc = addr
+  #end
 
-      if error_message != nil
-        print "ERROR: ", error_message, "\n"
-      else
-        puts "halted"
-      end
+  def step
+    error = catch (:error) do
+      @machine.step
+    end
+
+    if error != nil
+      print "ERROR: ", error_message, "\n"
+    end
+
+    if @machine.halted
+      print "halted\n"
     end
   end
 
   def execute
-    error_message = catch (:halt) do
-      while true
-        @processor.step
-      end
-    end
-
-    if error_message != nil
-      print "ERROR: ", error_message, "\n"
-    else
-      puts "halted"
+    unless @machine.halted
+      @machine.step
     end
   end
 
   def print_registers
     regs = %w(eax ecx edx ebx esp ebp esi edi)
 
-    regs.each_with_index do |reg, i|
-      v = @processor.registers[i]
-      neg = false
-      if v >= 0x80000000
-        neg = true
-        v = (v ^ 0xffffffff) + 1
-      end
-      print reg, ' = ', neg ? '-' : '', '0x', v.to_s(16), "\n"
-    end
+    cores = [@machine.core1, @machine.core2]
 
-    print 'OF = ', @processor.of, "\n"
-    print 'ZF = ', @processor.zf, "\n"
-    print 'SF = ', @processor.sf, "\n"
+    cores.each_with_index do |core, i|
+      print "From core #{i}\n"
+
+      regs.each_with_index do |reg, i|
+        v = core.registers[i]
+        neg = false
+        if v >= 0x80000000
+          neg = true
+          v = (v ^ 0xffffffff) + 1
+        end
+        print reg, ' = ', neg ? '-' : '', '0x', v.to_s(16), "\n"
+      end
+
+      print 'OF = ', core.of, "\n"
+      print 'ZF = ', core.zf, "\n"
+      print 'SF = ', core.sf, "\n"
+    end
   end
 end
-
-Simulator.new.main
