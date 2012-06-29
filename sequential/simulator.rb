@@ -1,7 +1,7 @@
 require_relative 'ruby86.rb'
 
 class Simulator
-  def initialize ncores
+  def initialize
     @machine = RubY86.new
   end
 
@@ -117,6 +117,10 @@ p          : print register"
     end
   end
 
+  def run
+    @machine.run
+  end
+
   def print_registers
     regs = %w(eax ecx edx ebx esp ebp esi edi)
 
@@ -141,3 +145,5 @@ p          : print register"
     end
   end
 end
+
+Simulator.new.run
