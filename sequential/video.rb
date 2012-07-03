@@ -28,4 +28,15 @@ class Video
 
     @screen.flip
   end
+
+  def wait_for_kill
+    while true
+      while event = SDL::Event.poll
+        case event
+          when SDL::Event::Quit
+            return
+        end
+      end
+    end
+  end
 end

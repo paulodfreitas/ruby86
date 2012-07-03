@@ -40,7 +40,7 @@ class Instruction
       r[:vp] += 4
     end
 
-    puts self.to_s(r)
+    #puts self.to_s(r)
     return r
   end
 

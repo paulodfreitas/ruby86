@@ -27,7 +27,5 @@ class Memory < Array
     l4 = at(index + 3)
     v = (((((l4.to_i << 8) + l3.to_i) << 8) + l2.to_i) << 8) + l1.to_i
     return v
-
-    #return rand(0..0xffffff)
   end
 end
