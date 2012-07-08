@@ -8,7 +8,7 @@ class Core
   def initialize core_id, memory
     @zf = @of = @sf = false
     @core_id = core_id
-    @pc = 0
+    @pc = core_id
     @registers = [0]*8
 
     @memory = memory

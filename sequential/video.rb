@@ -1,4 +1,4 @@
-require_relative 'sdl.rb'
+require_relative "./sdl_ext.so"
 
 class Video
   def initialize memory
