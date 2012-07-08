@@ -15,7 +15,7 @@ class Core
   end
 
   def reset
-    @pc = 0
+    @pc = @core_id
     @halted = false
   end
 
