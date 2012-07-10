@@ -8,14 +8,14 @@ class Core
   def initialize core_id, memory
     @zf = @of = @sf = false
     @core_id = core_id
-    @pc = core_id
+    @pc = core_id * 5
     @registers = [0]*8
 
     @memory = memory
   end
 
   def reset
-    @pc = @core_id
+    @pc = @core_id * 5
     @halted = false
   end
 

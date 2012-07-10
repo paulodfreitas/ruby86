@@ -120,7 +120,11 @@ class Instruction
   end
 
 
-  def to_s r
+  def to_s r = nil
+    if r == nil
+      return ""
+    end
+
     regs = ['eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi', 'NO-REG']
     print self.class.to_s
     if self.class.has_ra

@@ -13,7 +13,6 @@ class Pushl < Instruction
 
     @is_pushf = b == 0x0 or b == 0x88
     r[:rb] = 4
-    puts self.to_s(r)
     return r
   end
 

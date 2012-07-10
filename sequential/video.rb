@@ -1,10 +1,10 @@
-require_relative "./sdl_ext.so"
+require 'sdl'
 
 class Video
   def initialize memory
-    @lines = 300
-    @columns = 300
-    @begin = 0x10000
+    @lines = 240
+    @columns = 360
+    @begin = 0x100000
     @memory = memory
     SDL::init SDL::INIT_EVERYTHING
     @screen = SDL::Screen.open @columns, @lines, 32, SDL::SWSURFACE

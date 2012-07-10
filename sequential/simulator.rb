@@ -146,4 +146,4 @@ p          : print register"
   end
 end
 
-Simulator.new.run
+#Simulator.new.run

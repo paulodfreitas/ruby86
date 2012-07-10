@@ -14,7 +14,6 @@ class Popl < Instruction
     r[:rb] = 4
 
 
-    puts self.to_s(r)
     return r
   end
 
