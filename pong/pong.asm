@@ -29,32 +29,21 @@ wait_loop:
     jne wait_loop
     ret
 
-desenha_bola:
-    ; bola.y * 360 + bola.x
-    mrmovl $4(%edi), %eax   ;bola.y
-    irmovl $0, %ebx         ;i = 0
-    irmovl $0, %ecx         ;mem_des = 0
-    irmovl $168, %edx       ;mem_inc = 360
-loop_multicacao:
-    subl %eax, %ebx
-    je exit_loop_mul        ; bola.y == i
-    addl %eax, %ebx
-
-    addl %edx, %ecx         ;mem_des += mem_inc
-    incl %ebx               ;i++
-    jmp loop_multicacao
-exit_loop_mul:
-
+apaga_bola:
     mrmovl $0(%edi), %eax   ;bola.x
-    addl %eax, %ecx         ;mem_des += bola.x
-
-    irmovl $ffffff, %eax    ;branco
-    rmmovl %eax, $100000(%ecx)
-
+    mrmovl $4(%edi), %ebx   ;bola.y
+    call des_qua_x_y
     ret
 
+desenha_bola:
+    mrmovl $0(%edi), %eax   ;bola.x
+    mrmovl $4(%edi), %ebx   ;bola.y
+    call cor_qua_x_y
+    ret
+
+
 passo_bola:
-    ;call apaga_bola
+    call apaga_bola
 
                             ;anda eixo x
     mrmovl $0(%edi), %eax   ;bola.x
@@ -116,9 +105,9 @@ ver_col_pas:
     je colide_com_pa    ;bola.x == 48  pa_esquerda
 
     ;pa direita
-    irmovl $137, %ebx   ;311 = 360 - 48 - 1
+    irmovl $120, %ebx   ;288 = 360 - 72
     subl %eax, %ebx
-    je colide_com_pa    ;bola.x == 311  pa_direita
+    je colide_com_pa    ;bola.x == 288  pa_direita
 
     ;sem colisoes
     ret
@@ -162,43 +151,40 @@ call_pa_desce:
 return:
     ret
 
-;%eax pa.y
-;%esi pa.x
+;proxie to des_ret_x_y
+apaga_pa:
+    jmp des_ret_x_y
+
+;proxie to cor_ret_x_y
 desenha_pa:
-    ; bola.y * 360 + bola.x
-    irmovl $0, %ebx         ;i = 0
-    irmovl $0, %ecx         ;mem_des = 0
-    irmovl $168, %edx       ;mem_inc = 360
-loop_mult2:
-    subl %eax, %ebx
-    je exit_loop_mlt       ; bola.y == i
-    addl %eax, %ebx
-
-    addl %edx, %ecx         ;mem_des += mem_inc
-    incl %ebx               ;i++
-    jmp loop_mult2
-exit_loop_mlt:
-
-    addl %esi, %ecx         ;mem_des += pa.x
-
-    irmovl $ffffff, %eax    ;branco
-    rmmovl %eax, $100000(%ecx)
-
-    ret
+    jmp cor_ret_x_y
 
 passo_pa_esq:
+    irmovl $18, %eax        ;pa.x = 24
+    mrmovl $10(%edi), %ebx  ;pa.y
+    call apaga_pa
+
     mrmovl $10(%edi), %eax  ;pa_esq.pos
+    call apaga_pa
     call passo_pa
     rmmovl %eax, $10(%edi)
-    irmovl $18, %esi
+
+    irmovl $18, %eax        ;pa.x = 24
+    mrmovl $10(%edi), %ebx  ;pa.y
     call desenha_pa
     ret
 
 passo_pa_dir:
+    irmovl $138, %eax       ;pa.x = 360 - 48 = 312
+    mrmovl $14(%edi), %ebx  ;pa.y
+    call apaga_pa
+
     mrmovl $14(%edi), %eax  ;pa_dir.pos
     call passo_pa
     rmmovl %eax, $14(%edi)
-    irmovl $138, %esi
+
+    irmovl $138, %eax       ;pa.x = 360 - 48 = 312
+    mrmovl $14(%edi), %ebx  ;pa.y
     call desenha_pa
     ret
 
@@ -226,5 +212,147 @@ core_2:
     call wait_init
     jmp loop_core_2
     ;halt
+
+;%eax = x
+;%ebx = y
+;%edx = pos = 4(360y + x)
+init_position:
+
+    irmovl $0, %edx ; %ecx = 0
+    addl %eax, %edx ; %ecx = x
+
+    irmovl $3, %ecx
+    shll %ecx, %ebx ; %ebx = 8y
+    addl %ebx, %edx ; %edx = 8y + x
+
+    irmovl $2, %ecx
+    shll %ecx, %ebx ; %ebx = 4(8y) = 32y
+    addl %ebx, %edx ; %edx = 32y + 8y + x = 40y +x
+
+    irmovl $1, %ecx
+    shll %ecx, %ebx ; %ebx = 2(32y) = 64y
+    addl %ebx, %edx ; %edx = 40y + 64y + x = 104y + x
+
+    irmovl $2, %ecx
+    shll %ecx, %ebx ; %ebx = 4(64y) = 256y
+    addl %ebx, %edx ; %edx = 104y + 256y + z = 360y + x
+
+    shll %ecx, %edx ; %edx = 4(360y + x)    ;4 bytes = 1pixel
+
+    irmovl $8, %ecx
+    shrl %ecx, %ebx ; %ebx = 256y/256 = y
+
+    ret
+
+;%ecx = cor
+;%edx = mem_init_dest
+;%esi = nr_cols || row length
+colore_ecx_edx:
+    rmmovl %ecx, $100000(%edx)
+    rmmovl %ecx, $100004(%edx)
+    rmmovl %ecx, $100008(%edx)
+    rmmovl %ecx, $10000c(%edx)
+    rmmovl %ecx, $100010(%edx)
+    rmmovl %ecx, $100014(%edx)
+    rmmovl %ecx, $100018(%edx)
+    rmmovl %ecx, $10001c(%edx)
+    rmmovl %ecx, $100020(%edx)
+    rmmovl %ecx, $100024(%edx)
+    rmmovl %ecx, $100028(%edx)
+    rmmovl %ecx, $10002c(%edx)
+    rmmovl %ecx, $100030(%edx)
+    rmmovl %ecx, $100034(%edx)
+    rmmovl %ecx, $100038(%edx)
+    rmmovl %ecx, $10003c(%edx)
+    rmmovl %ecx, $100040(%edx)
+    rmmovl %ecx, $100044(%edx)
+    rmmovl %ecx, $100048(%edx)
+    rmmovl %ecx, $10004c(%edx)
+    rmmovl %ecx, $100050(%edx)
+    rmmovl %ecx, $100054(%edx)
+    rmmovl %ecx, $100058(%edx)
+    rmmovl %ecx, $10005c(%edx)
+
+
+    addl %esi, %edx
+    ret
+
+;%ecx = cor
+;%edx = mem_init_dest
+colore_quadrado:
+    irmovl $5a0, %esi   ; %esi = 4*(360) = 1440
+
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    ret
+
+;eax = x
+;ebx = y
+descolore_x_y:
+    call init_position      ;%edx = mem_pos
+    irmovl $000000, %ecx    ; preto
+    call colore_quadrado
+    ret
+
+;eax = x
+;ebx = y
+colore_x_y:
+    call init_position      ;%edx = mem_pos
+    irmovl $ffffff, %ecx    ; branco
+    call colore_quadrado
+    ret
+
+cor_qua_x_y:
+    jmp colore_x_y
+
+des_qua_x_y:
+    jmp descolore_x_y
+
+cor_ret_x_y:
+    call colore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx     ;y += 24
+    call colore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx
+    call colore_x_y
+    ret
+
+des_ret_x_y:
+    call descolore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx     ;y += 24
+    call descolore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx
+    call descolore_x_y
+    ret
+
 
 .end

@@ -1,7 +1,7 @@
 require_relative "../sequential/simulator"
 
 simulator = Simulator.new
-simulator.load_file "paint.out"
+simulator.load_file "pong.out"
 
 simulator.run
 

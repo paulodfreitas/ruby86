@@ -1,115 +1,164 @@
-.module entry_code
+.module paint
 .pseg
-.org 0
 
-main:
     jmp core_1
     jmp core_2
 
-core_2:
-    halt
+;%eax = x
+;%ebx = y
+;%edx = pos = 4(360y + x)
+init_position:
+
+    irmovl $0, %edx ; %ecx = 0
+    addl %eax, %edx ; %ecx = x
+
+    irmovl $3, %ecx
+    shll %ecx, %ebx ; %ebx = 8y
+    addl %ebx, %edx ; %edx = 8y + x
+
+    irmovl $2, %ecx
+    shll %ecx, %ebx ; %ebx = 4(8y) = 32y
+    addl %ebx, %edx ; %edx = 32y + 8y + x = 40y +x
+
+    irmovl $1, %ecx
+    shll %ecx, %ebx ; %ebx = 2(32y) = 64y
+    addl %ebx, %edx ; %edx = 40y + 64y + x = 104y + x
+
+    irmovl $2, %ecx
+    shll %ecx, %ebx ; %ebx = 4(64y) = 256y
+    addl %ebx, %edx ; %edx = 104y + 256y + z = 360y + x
+
+    shll %ecx, %edx ; %edx = 4(360y + x)    ;4 bytes = 1pixel
+
+    irmovl $8, %ecx
+    shrl %ecx, %ebx ; %ebx = 256y/256 = y
+
+    ret
+
+;%ecx = cor
+;%edx = mem_init_dest
+;%esi = nr_cols || row length
+colore_ecx_edx:
+    rmmovl %ecx, $100000(%edx)
+    rmmovl %ecx, $100004(%edx)
+    rmmovl %ecx, $100008(%edx)
+    rmmovl %ecx, $10000c(%edx)
+    rmmovl %ecx, $100010(%edx)
+    rmmovl %ecx, $100014(%edx)
+    rmmovl %ecx, $100018(%edx)
+    rmmovl %ecx, $10001c(%edx)
+    rmmovl %ecx, $100020(%edx)
+    rmmovl %ecx, $100024(%edx)
+    rmmovl %ecx, $100028(%edx)
+    rmmovl %ecx, $10002c(%edx)
+    rmmovl %ecx, $100030(%edx)
+    rmmovl %ecx, $100034(%edx)
+    rmmovl %ecx, $100038(%edx)
+    rmmovl %ecx, $10003c(%edx)
+    rmmovl %ecx, $100040(%edx)
+    rmmovl %ecx, $100044(%edx)
+    rmmovl %ecx, $100048(%edx)
+    rmmovl %ecx, $10004c(%edx)
+    rmmovl %ecx, $100050(%edx)
+    rmmovl %ecx, $100054(%edx)
+    rmmovl %ecx, $100058(%edx)
+    rmmovl %ecx, $10005c(%edx)
+
+
+    addl %esi, %edx
+    ret
+
+;%ecx = cor
+;%edx = mem_init_dest
+colore_quadrado:
+    irmovl $5a0, %esi   ; %esi = 4*(360) = 1440
+
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    call colore_ecx_edx
+    ret
+
+cor_ret_x_y:
+    call colore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx     ;y += 24
+    call colore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx
+    call colore_x_y
+    ret
+
+des_ret_x_y:
+    call descolore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx     ;y += 24
+    call descolore_x_y
+
+    irmovl $18, %ecx
+    addl %ecx, %ebx
+    call descolore_x_y
+    ret
+
+loop:
+    jmp loop
+
+
+;eax = x
+;ebx = y
+descolore_x_y:
+    call init_position      ;%edx = mem_pos
+    irmovl $000000, %ecx    ; preto
+    call colore_quadrado
+    ret
+
+;eax = x
+;ebx = y
+colore_x_y:
+    call init_position      ;%edx = mem_pos
+    irmovl $ffffff, %ecx    ; branco
+    call colore_quadrado
+    ret
 
 core_1:
-    irmovl $100, %eax
-    irmovl $100, %ebx
-    irmovl $50, %ecx
-    irmovl $50, %edx
-    call dq_branco
-LOOP:
-    jmp LOOP
+    irmovl $c0000, %esp     ;call stack
+    irmovl $100000, %ecx    ;video offset
 
-;%eax: x
-;%ebx: y
-;%ecx: largura
-;%edx: altura
-dq_branco:
-	irmovl 0, %edi
-	irmovl $100000, %esi
-	rmmovl %esi, _VIDEO(%edi)
+    irmovl $0, %edx         ;%edx = 0
+    addl %ecx, %edx
 
-	;%esi = 256*y
-	rrmovl %ebx, %esi
-	irmovl $8, %edi
-	shll %edi, %esi
+    irmovl $18, %eax        ;x = 24
+    irmovl $18, %ebx        ;y = 24
+    call cor_ret_x_y;
 
-	;%edi = 64*y
-	rrmovl %ebx, %edi
-	irmovl $6, %ebp
-	shll %ebp, %edi
 
-	;%esi = 256*y + 64*y + x = 320*y + x. Representa o indice atual.
-	addl %edi, %esi
-	addl %eax, %esi
+    jmp loop
+    halt
 
-	;calculando limite superior do indice do loop externo
-	;%edi = 320 * y + 320 * altura + x = %esi + 320 * altura
-
-	;%edi = 64 * altura
-	irmovl $6, %ebp
-	rrmovl %edx, %edi
-	shll %ebp, %edi
-
-	;%ebp = 256 * altura
-	pushl %eax
-	irmovl $8, %eax
-	rrmovl %edx, %ebp
-	shll %eax, %ebp
-	popl %eax
-
-	;%edi = 320 * y + 320 * altura + x = %esi + 320 * altura
-	addl %ebp, %edi
-	addl %esi, %edi
-	irmovl $1, %ebp
-	addl %ebp, %edi
-EXTERNO:
-	rrmovl %edi, %ebp ;criando uma copia para nao perde-lo na instrução abaixo
-	subl %esi, %ebp
-	je END
-	;calculando o limite da linha. %ebp
-	rrmovl %esi, %ebp
-	addl %ecx, %ebp
-	pushl %eax
-	irmovl $1, %eax
-	addl %eax, %ebp
-	popl %eax
-INTERNO:
-	pushl %eax
-	rrmovl %ebp, %eax
-	subl %esi, %eax
-	popl %eax
-	je ALE
-	pushl %eax
-	irmovl _VIDEO, %eax
-	pushl %esi
-	pushl %edi
-	irmovl $2, %edi
-	shll %edi, %esi
-	addl %esi, %eax
-	irmovl $abcd, %esi ;cor
-	rmmovl %esi, 0(%eax)
-	popl %edi
-	popl %esi
-	popl %eax
-ALI:
-	pushl %eax
-	irmovl $1, %eax
-	addl %eax, %esi
-	popl %eax
-	jmp INTERNO
-ALE:
-    pushl %eax
-    irmovl $140, %eax
-	addl %eax, %esi ;aumenta o indice em LARGURA_TELA
-	popl %eax
-	subl %edx, %esi ;e subtrai a largura de forma a voltar ao inicio da linha
-	jmp EXTERNO
-END:
-	ret
-
-.dseg
-.global _VIDEO
-.blk 4
-.global _LARGURA_TELA
-.blk 4
+core_2:
+    halt
 
 .end
